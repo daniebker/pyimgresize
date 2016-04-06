@@ -1,23 +1,38 @@
 __author__ = 'dbaker'
 
 from PIL import Image
+import pexif
+
+
+def getRatio(image, resizeTo):
+    longEdge = max(image.size[0], image.size[1])
+    return float(longEdge) / resizeTo
+
+
+def getNewSize(originalSize, ratio):
+    newWidth = originalSize[0] / ratio
+    newHeight = originalSize[1] / ratio
+    return int(newWidth), int(newHeight)
+
 
 ext = ".jpg"
 
-#Command Line Arg
+# Command Line Arg
 imageName = 'fullsized_image'
 
 originalImage = Image.open(imageName + ext)
 
 #Command Line arg
-resizeTo = 500
+setLongestEdgeTo = 500
 
-longEdge = max(originalImage.size[0], originalImage.size[1])
-ratio = float(longEdge)/resizeTo
+newSize = getNewSize(originalImage.size, getRatio(originalImage, setLongestEdgeTo))
 
-newWidth = originalImage.size[0] / ratio
-newHeight = originalImage.size[1] / ratio
+newImage = originalImage.resize((newSize[0], newSize[1]), Image.ANTIALIAS)  # best down-sizing filter
 
-newImage = originalImage.resize((int(newWidth), int(newHeight)), Image.ANTIALIAS)    # best down-sizing filter
+newImageName = imageName + "_" + str(setLongestEdgeTo) + ext
+newImage.save(newImageName)
 
-newImage.save(imageName + "_" + str(resizeTo) + ext)
+img_src = pexif.JpegFile.fromFile(imageName + ext)
+img_dst = pexif.JpegFile.fromFile(newImageName)
+img_dst.import_exif(img_src.exif)
+img_dst.writeFile("hello4.jpg")
