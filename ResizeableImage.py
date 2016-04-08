@@ -22,9 +22,17 @@ class ResizableImage:
         self.image_name, self.ext = os.path.splitext(os.path.basename(self.original_image_file_path))
         self.original_image = Image.open(self.original_image_file_path)
 
+    """
+        Gets the ratio of the new image based on the target size.
+        If the target size is greater than the longest edge of the
+        image then it just returns the longest edge.
+    """
     def get_ratio(self, target_size):
-        longEdge = max(self.original_image.size[0], self.original_image.size[1])
-        return float(longEdge) / target_size
+        long_edge = max(self.original_image.size[0], self.original_image.size[1])
+        if target_size < long_edge:
+            return float(long_edge) / target_size
+        else:
+            return long_edge
 
     def get_new_size(self, ratio):
         new_width = self.original_image.size[0] / ratio
