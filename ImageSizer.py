@@ -1,38 +1,28 @@
 __author__ = 'dbaker'
 
-from PIL import Image
-import pexif
+from ResizeableImage import ResizableImage
+import argparse
+import os
+import fnmatch
 
 
-def getRatio(image, resizeTo):
-    longEdge = max(image.size[0], image.size[1])
-    return float(longEdge) / resizeTo
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", help="The file path to your image or images.")
+parser.add_argument("-le", help="The size to set the longest edge to.", type=int)
+args = parser.parse_args()
 
+setLongestEdgeTo = args.le
 
-def getNewSize(originalSize, ratio):
-    newWidth = originalSize[0] / ratio
-    newHeight = originalSize[1] / ratio
-    return int(newWidth), int(newHeight)
+if os.path.isdir(args.f):
+    matches = []
+    for root, dir_names, file_names in os.walk(args.f):
+        for filename in fnmatch.filter(file_names, '*.jpg'):
+            matches.append(os.path.join(root, filename))
 
-
-ext = ".jpg"
-
-# Command Line Arg
-imageName = 'fullsized_image'
-
-originalImage = Image.open(imageName + ext)
-
-#Command Line arg
-setLongestEdgeTo = 500
-
-newSize = getNewSize(originalImage.size, getRatio(originalImage, setLongestEdgeTo))
-
-newImage = originalImage.resize((newSize[0], newSize[1]), Image.ANTIALIAS)  # best down-sizing filter
-
-newImageName = imageName + "_" + str(setLongestEdgeTo) + ext
-newImage.save(newImageName)
-
-img_src = pexif.JpegFile.fromFile(imageName + ext)
-img_dst = pexif.JpegFile.fromFile(newImageName)
-img_dst.import_exif(img_src.exif)
-img_dst.writeFile("hello4.jpg")
+    for original_image_file_path in matches:
+        resizeable_image = ResizableImage(original_image_file_path)
+        print 'Setting longest edge to ' + str(args.le) + ' for ' + original_image_file_path
+        resizeable_image.resize_longest_edge_to(args.le)  # best down-sizing filter
+else:
+    resizeable_image = ResizableImage(args.f)
+    resizeable_image.resize_longest_edge_to(args.le)  # best down-sizing filter
