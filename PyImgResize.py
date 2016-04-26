@@ -7,9 +7,7 @@ Copyright (c) D. Baker. All rights reserved.
 
 """
 
-import argparse
 import os
-import fnmatch
 
 
 class ImageFile:
