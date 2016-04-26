@@ -26,6 +26,10 @@ class ImageFile:
     def image_ext(self):
         return os.path.splitext(os.path.basename(self.file_path))[1]
 
+    @property
+    def image_directory(self):
+        return os.path.dirname(self.file_path)
+
 
 def get_ratio(target_size, width, height):
     long_edge = max(width, height)

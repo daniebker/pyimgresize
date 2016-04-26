@@ -29,5 +29,9 @@ class ImageFileTestCase(unittest.TestCase):
     def test_image_ext(self):
         self.assertEqual(".jpg", self.image_file.image_ext)
 
+    def test_image_directory(self):
+        self.assertEqual("C:/some/path/to", self.image_file.image_directory)
+
+
 if __name__ == '__main__':
     unittest.main()
