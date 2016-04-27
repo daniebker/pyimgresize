@@ -3,12 +3,11 @@
 """
 pyimgresize.py
 Created on 26/04/2016
-Copyright (c) D. Baker. All rights reserved.
-
+Copyright (c) D. Baker.
 """
 
 import os
-import fnmatch, argparse
+import fnmatch, piexif
 
 from PIL import Image
 
@@ -74,7 +73,13 @@ def resize_images(longest_edge, images):
 
 
 def save_image_to_disk(resized_image):
+
     pil_original_image = Image.open(resized_image.file_path)
+
+    # load exif data
+    exif_dict = piexif.load(pil_original_image .info["exif"])
+    exif_bytes = piexif.dump(exif_dict)
+
     pil_resized_image = pil_original_image.resize((resized_image.width, resized_image.height), Image.ANTIALIAS)
 
     new_image_name = resized_image.image_name \
@@ -82,17 +87,24 @@ def save_image_to_disk(resized_image):
                      + resized_image.image_ext
     new_image_file_path = resized_image.image_directory + os.path.sep + new_image_name
 
-    pil_resized_image.save(new_image_file_path)
+    pil_resized_image.save(new_image_file_path, exif=exif_bytes)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("-f", help="The file path to your image or images.")
-parser.add_argument("-le", help="The size to set the longest edge to.", type=int)
-args = parser.parse_args()
+def main():
+    import argparse
 
-resized_image_files = []
-for path in get_files_on_path(args.f):
-    resized_image_files.append(resize_longest_edge_to(args.le, open_image_file(path)))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", help="The file path to your image or images.")
+    parser.add_argument("-le", help="The size to set the longest edge to.", type=int)
+    args = parser.parse_args()
 
-for resized_image in resized_image_files:
-    save_image_to_disk(resized_image)
+    resized_image_files = []
+    for path in get_files_on_path(args.f):
+        resized_image_files.append(resize_longest_edge_to(args.le, open_image_file(path)))
+
+    for resized_image in resized_image_files:
+        save_image_to_disk(resized_image)
+
+
+if __name__ == '__main__':
+    main()
