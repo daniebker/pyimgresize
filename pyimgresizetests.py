@@ -1,3 +1,5 @@
+from array import array
+
 __author__ = 'dbaker'
 
 import unittest
@@ -16,11 +18,31 @@ class ImgResizeTests(unittest.TestCase):
         self.assertEqual(100, result[1])
 
     def test_resize_longest_edge_to(self):
-        expected = ImageFile("C:\\some\\path\\to\\file_200.jpg", 200, 100)
+        expected = ImageFile("C:\\some\\path\\to\\file.jpg", 200, 100)
         result = pyimgresize.resize_longest_edge_to(200, ImageFile("C:\\some\\path\\to\\file.jpg", 600, 300))
-        self.assertEquals(expected.file_path, result.file_path)
-        self.assertEquals(expected.width, result.width)
-        self.assertEquals(expected.height, result.height)
+        self.assert_images_are_equal(expected, result)
+
+    def test_resize_images(self):
+        expected = []
+        for count in range(4):
+            image_file = ImageFile("C:\\some\\path\\to\\file_" + str(count) + ".jpg", 200, 100)
+            expected.append(image_file)
+
+        images_to_resize = []
+        for count in range(4):
+            image_file = ImageFile("C:\\some\\path\\to\\file_" + str(count) + ".jpg", 600, 300)
+            images_to_resize.append(image_file)
+
+        result = pyimgresize.resize_images(200, images_to_resize)
+
+        for ii in range(len(expected)-1):
+            self.assert_images_are_equal(expected[ii], result[ii])
+
+    def assert_images_are_equal(self, expected, result):
+        self.assertEqual(expected.file_path, result.file_path)
+        self.assertEqual(expected.width, result.width)
+        self.assertEqual(expected.height, result.height)
+
 
 class ImageFileTestCase(unittest.TestCase):
     def setUp(self):
