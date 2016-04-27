@@ -15,6 +15,12 @@ class ImgResizeTests(unittest.TestCase):
         self.assertEqual(200, result[0])
         self.assertEqual(100, result[1])
 
+    def test_resize_longest_edge_to(self):
+        expected = ImageFile("C:\\some\\path\\to\\file_200.jpg", 200, 100)
+        result = pyimgresize.resize_longest_edge_to(200, ImageFile("C:\\some\\path\\to\\file.jpg", 600, 300))
+        self.assertEquals(expected.file_path, result.file_path)
+        self.assertEquals(expected.width, result.width)
+        self.assertEquals(expected.height, result.height)
 
 class ImageFileTestCase(unittest.TestCase):
     def setUp(self):

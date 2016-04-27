@@ -41,3 +41,11 @@ def get_new_size(ratio, width, height):
     new_width = width / ratio
     new_height = height / ratio
     return int(new_width), int(new_height)
+
+
+def resize_longest_edge_to(longest_edge, original_image):
+    ratio = get_ratio(longest_edge, original_image.width, original_image.height)
+    new_size = get_new_size(ratio, original_image.width, original_image.height)
+    new_image_name = original_image.image_name + "_" + str(longest_edge) + original_image.image_ext
+    new_image_file_path = original_image.image_directory + os.path.sep + new_image_name
+    return ImageFile(new_image_file_path, new_size[0], new_size[1])
