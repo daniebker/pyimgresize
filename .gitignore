@@ -3,3 +3,6 @@
 *.pyc
 *.html
 Sample/
+dist/
+build/
+*.egg-info
