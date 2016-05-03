@@ -1,10 +1,13 @@
-from array import array
+#!/usr/bin/env python
+# encoding: utf-8
 
-__author__ = 'dbaker'
-
+from unittest.mock import patch
 import unittest
+
 import pyimgresize
 from pyimgresize import ImageFile
+
+__author__ = 'daniebker'
 
 
 class ImgResizeTests(unittest.TestCase):
@@ -35,8 +38,49 @@ class ImgResizeTests(unittest.TestCase):
 
         result = pyimgresize.resize_images(200, images_to_resize)
 
-        for ii in range(len(expected)-1):
+        for ii in range(len(expected) - 1):
             self.assert_images_are_equal(expected[ii], result[ii])
+
+    @patch('pyimgresize.os.walk')
+    def test_get_files_on_path(self, mock):
+        mock.return_value = [
+            ('C:\\some\\path\\to\\file', (), ('foo.txt',))
+        ]
+
+        matches = pyimgresize.get_files_on_path("C:\\some\\path\\to\\file")
+        self.assertEqual(0, len(matches))
+
+    @patch('pyimgresize.os.walk')
+    def test_get_files_on_path_with_jpgs(self, mock):
+        mock.return_value = [
+            ('C:\\some\\path\\to\\file', (), ('foo.jpg',))
+        ]
+        matches = pyimgresize.get_files_on_path("C:\\some\\path\\to\\file")
+        self.assertEqual(1, len(matches))
+
+    @patch('pyimgresize.os.walk')
+    def test_get_files_on_path_with_tif(self, mock):
+        mock.return_value = [
+            ('C:\\some\\path\\to\\file', (), ('foo.tif',))
+        ]
+        matches = pyimgresize.get_files_on_path("C:\\some\\path\\to\\file")
+        self.assertEqual(1, len(matches))
+
+    @patch('pyimgresize.os.walk')
+    def test_get_files_on_path_with_multiple_file_types(self, mock):
+        expected = [
+            ('C:\\some\\path\\to\\file', (), ('foo.tif',)),
+            ('C:\\some\\path\\to\\file', (), ('foo.jpg',)),
+            ('C:\\some\\path\\to\\file', (), ('foo.jpeg',))
+        ]
+        mock.return_value = expected
+        matches = pyimgresize.get_files_on_path("C:\\some\\path\\to\\file")
+        self.assertEqual(len(expected), len(matches))
+
+    def test_validate_save_as_not_start_with_period(self):
+        result = pyimgresize.validate_output_format("jpeg")
+
+        self.assertFalse(result)
 
     def assert_images_are_equal(self, expected, result):
         self.assertEqual(expected.file_path, result.file_path)
